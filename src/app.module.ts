@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import configuration from './config/configuration';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService } from './database/type-orm-config.service';
+import { FormsModule } from './forms/forms.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { TypeOrmConfigService } from './database/type-orm-config.service';
     TypeOrmModule.forRootAsync({
       useClass: TypeOrmConfigService,
     }),
+    FormsModule,
   ],
   controllers: [AppController],
   providers: [AppService, TypeOrmConfigService],
