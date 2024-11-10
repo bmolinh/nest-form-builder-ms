@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmConfigService } from './type-orm-config.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Form } from '../forms/entities/form.entity';
+import { Field } from '../forms/entities/field.entity';
 
 describe('TypeOrmConfigService', () => {
   let service: TypeOrmConfigService;
@@ -44,7 +46,7 @@ describe('TypeOrmConfigService', () => {
       username: 'testuser',
       password: 'testpassword',
       database: 'testdb',
-      entities: [],
+      entities: [Form, Field],
       synchronize: true,
     });
   });

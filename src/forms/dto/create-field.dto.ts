@@ -7,9 +7,12 @@ import {
   ValidateIf,
   Validate,
   ValidationArguments,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
 } from 'class-validator';
 
-class IsValuesArrayValid {
+@ValidatorConstraint({ name: 'isValuesArrayValid', async: false })
+class IsValuesArrayValid implements ValidatorConstraintInterface {
   validate(values: string[], args: ValidationArguments) {
     const object = args.object as CreateFieldDto;
     return (
@@ -22,7 +25,8 @@ class IsValuesArrayValid {
   }
 }
 
-class IsDefaultValueValid {
+@ValidatorConstraint({ name: 'isDefaultValueValid', async: false })
+class IsDefaultValueValid implements ValidatorConstraintInterface {
   validate(defaultValue: string, args: ValidationArguments) {
     const object = args.object as CreateFieldDto;
     return object.type !== 'select' || object.values.includes(defaultValue);

@@ -9,9 +9,12 @@ import {
   ValidateIf,
   Validate,
   ValidationArguments,
+  ValidatorConstraintInterface,
+  ValidatorConstraint,
 } from 'class-validator';
 
-class IsValuesArrayValid {
+@ValidatorConstraint({ name: 'isValuesArrayValid', async: false })
+class IsValuesArrayValid implements ValidatorConstraintInterface {
   validate(values: string[], args: ValidationArguments) {
     const object = args.object as Field;
     return (
@@ -24,7 +27,8 @@ class IsValuesArrayValid {
   }
 }
 
-class IsDefaultValueValid {
+@ValidatorConstraint({ name: 'isDefaultValueValid', async: false })
+class IsDefaultValueValid implements ValidatorConstraintInterface {
   validate(defaultValue: string, args: ValidationArguments) {
     const object = args.object as Field;
     return object.type !== 'select' || object.values.includes(defaultValue);
@@ -59,13 +63,13 @@ export class Field {
   @IsBoolean()
   required: boolean;
 
-  @Column('simple-array', { nullable: true })
-  @ValidateIf((o) => o.type === 'select')
+  @Column('simple-array')
+  @ValidateIf((field) => field.type === 'select')
   @Validate(IsValuesArrayValid)
   values: string[];
 
   @Column({ nullable: true })
-  @ValidateIf((o) => o.type === 'select')
+  @ValidateIf((field) => field.type === 'select')
   @Validate(IsDefaultValueValid)
   @IsOptional()
   @IsString()
