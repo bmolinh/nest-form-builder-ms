@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { validate } from 'class-validator';
 import { CreateFormDto } from './create-form.dto';
 import { CreateFieldDto } from './create-field.dto';
@@ -7,6 +8,8 @@ describe('CreateFormDto', () => {
     const createFieldDto = new CreateFieldDto();
     createFieldDto.name = 'Field Name';
     createFieldDto.type = 'text';
+    createFieldDto.label = 'Field Label';
+    createFieldDto.required = true;
 
     const createFormDto = new CreateFormDto();
     createFormDto.name = 'Form Name';
@@ -14,6 +17,7 @@ describe('CreateFormDto', () => {
     createFormDto.fields = [createFieldDto];
 
     const errors = await validate(createFormDto);
+    console.log(errors);
     expect(errors.length).toBe(0);
   });
 

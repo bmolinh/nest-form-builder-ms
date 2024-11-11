@@ -63,9 +63,10 @@ export class Field {
   @IsBoolean()
   required: boolean;
 
-  @Column('simple-array')
+  @Column('simple-array', { nullable: true })
   @ValidateIf((field) => field.type === 'select')
   @Validate(IsValuesArrayValid)
+  @IsOptional()
   values: string[];
 
   @Column({ nullable: true })
