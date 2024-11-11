@@ -1,20 +1,20 @@
-import { GlobalExceptionFilter } from './global-exception.filter';
+import { GlobalFilter } from './global.filter';
 import { ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
 
-describe('GlobalExceptionFilter', () => {
+describe('GlobalFilter', () => {
   it('should be defined', () => {
-    expect(new GlobalExceptionFilter()).toBeDefined();
+    expect(new GlobalFilter()).toBeDefined();
   });
 
-  describe('GlobalExceptionFilter', () => {
-    let globalExceptionFilter: GlobalExceptionFilter;
+  describe('GlobalFilter', () => {
+    let globalFilter: GlobalFilter;
     let mockArgumentsHost: ArgumentsHost;
     let mockResponse: Response;
     let mockRequest: Request;
 
     beforeEach(() => {
-      globalExceptionFilter = new GlobalExceptionFilter();
+      globalFilter = new GlobalFilter();
       mockResponse = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn(),
@@ -31,13 +31,13 @@ describe('GlobalExceptionFilter', () => {
     });
 
     it('should be defined', () => {
-      expect(globalExceptionFilter).toBeDefined();
+      expect(globalFilter).toBeDefined();
     });
 
     it('should handle HttpException correctly', () => {
       const exception = new HttpException('Forbidden', HttpStatus.FORBIDDEN);
 
-      globalExceptionFilter.catch(exception, mockArgumentsHost);
+      globalFilter.catch(exception, mockArgumentsHost);
 
       expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.FORBIDDEN);
       expect(mockResponse.json).toHaveBeenCalledWith({
@@ -50,7 +50,7 @@ describe('GlobalExceptionFilter', () => {
     it('should handle non-HttpException correctly', () => {
       const exception = new Error('Some error');
 
-      globalExceptionFilter.catch(exception, mockArgumentsHost);
+      globalFilter.catch(exception, mockArgumentsHost);
 
       expect(mockResponse.status).toHaveBeenCalledWith(
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -68,7 +68,7 @@ describe('GlobalExceptionFilter', () => {
         debug: 'No stack trace available',
       };
 
-      globalExceptionFilter.catch(exception, mockArgumentsHost);
+      globalFilter.catch(exception, mockArgumentsHost);
 
       expect(mockResponse.status).toHaveBeenCalledWith(
         HttpStatus.INTERNAL_SERVER_ERROR,
