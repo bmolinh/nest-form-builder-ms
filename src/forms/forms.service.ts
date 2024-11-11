@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateFormDto } from './dto/create-form.dto';
 import { UpdateFormDto } from './dto/update-form.dto';
 import { Form } from './entities/form.entity';
+import { Field } from './entities/field.entity';
 
 @Injectable()
 export class FormsService {
@@ -29,8 +30,28 @@ export class FormsService {
   }
 
   async update(id: number, updateFormDto: UpdateFormDto): Promise<Form> {
-    await this.formsRepository.update(id, updateFormDto);
-    return this.findOne(id);
+    const form = await this.findOne(id);
+
+    if (!form) throw new NotFoundException(`Form with ID ${id} not found`);
+
+    if (updateFormDto.fields) {
+      form.fields = updateFormDto.fields.map((fieldDto) => {
+        const existingField = form.fields.find((f) => f.id === fieldDto.id);
+
+        if (existingField) {
+          return { ...existingField, ...fieldDto };
+        }
+
+        const newField = new Field();
+        Object.assign(newField, fieldDto);
+        newField.form = form;
+
+        return newField;
+      });
+    }
+
+    Object.assign(form, updateFormDto);
+    return this.formsRepository.save(form);
   }
 
   async remove(id: number): Promise<void> {

@@ -38,6 +38,9 @@ class IsDefaultValueValid implements ValidatorConstraintInterface {
 }
 
 export class CreateFieldDto {
+  @IsOptional()
+  id?: number;
+
   @IsNotEmpty()
   @IsString()
   name: string;
@@ -55,11 +58,11 @@ export class CreateFieldDto {
 
   @ValidateIf((o) => o.type === 'select')
   @Validate(IsValuesArrayValid)
-  values: string[];
+  values?: string[];
 
   @ValidateIf((o) => o.type === 'select')
   @Validate(IsDefaultValueValid)
   @IsOptional()
   @IsString()
-  defaultValue: string;
+  defaultValue?: string;
 }
