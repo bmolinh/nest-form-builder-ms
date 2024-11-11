@@ -58,6 +58,117 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Operations
+
+### Health Check
+
+You can check the health of the application by making a GET request to the `/` endpoint:
+
+```bash
+$ curl http://localhost:3000/
+```
+
+### Forms
+
+The application provides several endpoints to manage forms:
+
+- **Create a Form**: `POST /forms`
+- **Submit a Form**: `POST /forms/:id`
+- **Get All Forms**: `GET /forms`
+- **Get a Form by ID**: `GET /forms/:id`
+- **Update a Form**: `PATCH /forms/:id`
+- **Delete a Form**: `DELETE /forms/:id`
+
+### Example Requests
+
+#### Create a Form
+
+```bash
+curl -X POST http://localhost:3000/forms -H "Content-Type: application/json" -d '{
+  "name": "Test Form",
+  "description": "Test Description",
+  "fields": [
+    {
+      "name": "Test Field",
+      "label": "Test Label",
+      "type": "text",
+      "required": true
+    }
+  ]
+}'
+```
+
+#### Submit a Form
+
+```bash
+curl -X POST http://localhost:3000/forms/1 -H "Content-Type: application/json" -d '{
+  "answers": [
+    {
+      "fieldId": 1,
+      "value": "Test Answer"
+    }
+  ]
+}'
+```
+
+#### Get All Forms
+
+```bash
+curl http://localhost:3000/forms
+```
+
+#### Get a Form by ID
+
+```bash
+curl http://localhost:3000/forms/1
+```
+
+#### Update a Form
+
+```bash
+curl -X PATCH http://localhost:3000/forms/1 -H "Content-Type: application/json" -d '{
+  "name": "Updated Form",
+  "description": "Updated Description",
+  "fields": [
+    {
+      "id": 1,
+      "name": "Updated Field",
+      "label": "Updated Label",
+      "type": "text",
+      "required": true
+    }
+  ]
+}'
+```
+
+#### Delete a Form
+
+```bash
+curl -X DELETE http://localhost:3000/forms/1
+```
+
+## Dockerization
+
+You can build and run the application using Docker. The following steps will guide you through the process:
+
+### Build the Docker Image
+
+```bash
+$ npm run docker:build
+```
+
+### Run the Docker Container
+
+```bash
+$ npm run docker:run
+```
+
+### Stop the Docker Container
+
+```bash
+$ npm run docker:stop
+```
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
