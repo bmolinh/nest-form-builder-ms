@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { Form } from './form.entity';
 import {
   IsNotEmpty,
@@ -12,6 +18,7 @@ import {
   ValidatorConstraintInterface,
   ValidatorConstraint,
 } from 'class-validator';
+import { Answer } from './answer.entity';
 
 @ValidatorConstraint({ name: 'isValuesArrayValid', async: false })
 class IsValuesArrayValid implements ValidatorConstraintInterface {
@@ -78,4 +85,7 @@ export class Field {
 
   @ManyToOne(() => Form, (form) => form.fields)
   form: Form;
+
+  @OneToMany(() => Answer, (answer) => answer.field, { cascade: true })
+  answers: Answer[];
 }

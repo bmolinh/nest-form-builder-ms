@@ -61,5 +61,23 @@ describe('GlobalExceptionFilter', () => {
         path: '/test-url',
       });
     });
+
+    it('should handle non-exception correctly', () => {
+      const exception = {
+        error: 'An error occurred',
+        debug: 'No stack trace available',
+      };
+
+      globalExceptionFilter.catch(exception, mockArgumentsHost);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        timestamp: expect.any(String),
+        path: '/test-url',
+      });
+    });
   });
 });

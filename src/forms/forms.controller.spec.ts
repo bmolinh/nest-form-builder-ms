@@ -5,6 +5,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Form } from './entities/form.entity';
 import { CreateFormDto } from './dto/create-form.dto';
 import { UpdateFormDto } from './dto/update-form.dto';
+import { Answer } from './entities/answer.entity';
 
 describe('FormsController', () => {
   let controller: FormsController;
@@ -26,6 +27,10 @@ describe('FormsController', () => {
         FormsService,
         {
           provide: getRepositoryToken(Form),
+          useValue: mockRepository,
+        },
+        {
+          provide: getRepositoryToken(Answer),
           useValue: mockRepository,
         },
       ],
@@ -57,6 +62,21 @@ describe('FormsController', () => {
 
     expect(await controller.create(createFormDto)).toEqual(form);
     expect(service.create).toHaveBeenCalledWith(createFormDto);
+  });
+
+  it('should submit form', async () => {
+    const form: Form = {
+      id: 1,
+      name: 'Test Form',
+      description: 'Test Description',
+      fields: [],
+    };
+    const formDto = { answers: [{ fieldId: 1, value: 'Answer 1' }] };
+
+    jest.spyOn(service, 'submit').mockResolvedValue(form);
+
+    expect(await controller.submit('1', formDto)).toEqual(form);
+    expect(service.submit).toHaveBeenCalledWith(1, formDto.answers);
   });
 
   it('should find all forms', async () => {

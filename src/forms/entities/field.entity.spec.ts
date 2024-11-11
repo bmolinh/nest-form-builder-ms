@@ -58,7 +58,6 @@ describe('Field Entity', () => {
     field.values = [];
 
     const errors = await validate(field);
-    console.log(errors);
     expect(errors.length).toBeGreaterThan(0);
     expect(errors[0].constraints.isValuesArrayValid).toBeDefined();
   });

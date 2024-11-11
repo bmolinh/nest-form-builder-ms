@@ -2,7 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { FormsService } from './forms.service';
 import { Form } from './entities/form.entity';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { Answer } from './entities/answer.entity';
+import { SubmitAnswerDto } from './dto/submit-form.dto';
 
 describe('FormsService', () => {
   let service: FormsService;
@@ -23,6 +25,10 @@ describe('FormsService', () => {
         FormsService,
         {
           provide: getRepositoryToken(Form),
+          useValue: mockRepository,
+        },
+        {
+          provide: getRepositoryToken(Answer),
           useValue: mockRepository,
         },
       ],
@@ -50,6 +56,78 @@ describe('FormsService', () => {
     expect(repository.save).toHaveBeenCalledWith(formDto);
   });
 
+  it('should submit answers', async () => {
+    const fields = [
+      {
+        id: 1,
+        name: 'Field 1',
+        label: 'Label 1',
+        type: 'text',
+        required: true,
+      },
+    ];
+
+    const form = {
+      id: 1,
+      name: 'Test Form',
+      description: 'Test Description',
+      fields: [...fields],
+    };
+
+    const answersDto: SubmitAnswerDto[] = [{ fieldId: 1, value: 'Answer 1' }];
+    const answers = [{ field: fields[0], value: 'Answer 1' }];
+
+    repository.findOne.mockResolvedValue(form);
+    repository.save.mockResolvedValue(answers);
+
+    expect(await service.submit(form.id, answersDto)).toEqual(form);
+    expect(repository.save).toHaveBeenCalledWith(answers);
+  });
+
+  it('should throw NotFoundException if form not found', async () => {
+    const form = {
+      id: 1,
+      name: 'Test Form',
+      description: 'Test Description',
+      fields: [],
+    };
+
+    const answersDto: SubmitAnswerDto[] = [{ fieldId: 2, value: 'Answer 2' }];
+
+    repository.findOne.mockResolvedValue(null);
+    repository.save.mockResolvedValue(null);
+
+    await expect(service.submit(form.id, answersDto)).rejects.toThrow(
+      NotFoundException,
+    );
+  });
+
+  it('should throw BadRequestException if field not found in form', async () => {
+    const form = {
+      id: 1,
+      name: 'Test Form',
+      description: 'Test Description',
+      fields: [
+        {
+          id: 1,
+          name: 'Field 1',
+          label: 'Label 1',
+          type: 'text',
+          required: true,
+        },
+      ],
+    };
+
+    const answersDto: SubmitAnswerDto[] = [{ fieldId: 2, value: 'Answer 2' }];
+
+    repository.findOne.mockResolvedValue(form);
+    repository.save.mockResolvedValue(null);
+
+    await expect(service.submit(form.id, answersDto)).rejects.toThrow(
+      BadRequestException,
+    );
+  });
+
   it('should find all forms', async () => {
     const forms = [
       { id: 1, name: 'Test Form', description: 'Test Description', fields: [] },
@@ -57,7 +135,9 @@ describe('FormsService', () => {
     repository.find.mockResolvedValue(forms);
 
     expect(await service.findAll()).toEqual(forms);
-    expect(repository.find).toHaveBeenCalledWith({ relations: ['fields'] });
+    expect(repository.find).toHaveBeenCalledWith({
+      relations: ['fields', 'fields.answers'],
+    });
   });
 
   it('should find one form', async () => {

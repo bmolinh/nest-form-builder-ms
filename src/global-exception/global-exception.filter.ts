@@ -13,11 +13,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(GlobalExceptionFilter.name);
 
   catch(exception: unknown, host: ArgumentsHost) {
-    this.logger.error(exception);
-
-    if (exception instanceof Error) {
-      this.logger.debug(exception.stack);
-    }
+    const casted = exception as Error;
+    this.logger.error(casted?.message || 'An error occurred');
+    this.logger.debug(casted?.stack || 'No stack trace available');
 
     const httpContext = host.switchToHttp();
     const response = httpContext.getResponse<Response>();

@@ -1,16 +1,24 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateFormDto } from './dto/create-form.dto';
 import { UpdateFormDto } from './dto/update-form.dto';
 import { Form } from './entities/form.entity';
 import { Field } from './entities/field.entity';
+import { Answer } from './entities/answer.entity';
+import { SubmitAnswerDto } from './dto/submit-form.dto';
 
 @Injectable()
 export class FormsService {
   constructor(
     @InjectRepository(Form)
     private readonly formsRepository: Repository<Form>,
+    @InjectRepository(Answer)
+    private readonly answersRepository: Repository<Answer>,
   ) {}
 
   create(createFormDto: CreateFormDto): Promise<Form> {
@@ -18,8 +26,42 @@ export class FormsService {
     return this.formsRepository.save(form);
   }
 
+  async submit(id: number, answersDto: SubmitAnswerDto[]): Promise<Form> {
+    const form = await this.findOne(id);
+
+    if (!form) throw new NotFoundException(`Form with ID ${id} not found`);
+
+    const answers: Answer[] = [];
+    const answerFieldIds = new Set(answersDto.map((answer) => answer.fieldId));
+
+    for (const field of form.fields) {
+      if (field.required && !answerFieldIds.has(field.id)) {
+        throw new BadRequestException(
+          `Required field with ID ${field.id} in form with ID ${id} is missing an answer`,
+        );
+      }
+
+      const answerDto = answersDto.find(
+        (answer) => answer.fieldId === field.id,
+      );
+
+      if (answerDto) {
+        const answer = new Answer();
+        answer.field = field;
+        answer.value = answerDto.value;
+        answers.push(answer);
+      }
+    }
+
+    await this.answersRepository.save(answers);
+
+    return form;
+  }
+
   findAll(): Promise<Form[]> {
-    return this.formsRepository.find({ relations: ['fields'] });
+    return this.formsRepository.find({
+      relations: ['fields', 'fields.answers'],
+    });
   }
 
   findOne(id: number): Promise<Form> {

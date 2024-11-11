@@ -12,6 +12,7 @@ import { FormsService } from './forms.service';
 import { CreateFormDto } from './dto/create-form.dto';
 import { UpdateFormDto } from './dto/update-form.dto';
 import { Form } from './entities/form.entity';
+import { SubmitFormDto } from './dto/submit-form.dto';
 
 @Controller('forms')
 export class FormsController {
@@ -24,6 +25,17 @@ export class FormsController {
     this.logger.log(`Creating a form with name: ${createFormDto.name}`);
     const form = await this.formsService.create(createFormDto);
     this.logger.log(`Form created with ID: ${form.id}`);
+    return form;
+  }
+
+  @Post(':id')
+  async submit(
+    @Param('id') id: string,
+    @Body() submitFormDto: SubmitFormDto,
+  ): Promise<Form> {
+    this.logger.log(`Submitting form with ID: ${id}`);
+    const form = await this.formsService.submit(+id, submitFormDto.answers);
+    this.logger.log(`Answers submitted for form with ID: ${id}`);
     return form;
   }
 

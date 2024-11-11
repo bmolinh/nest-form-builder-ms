@@ -3,6 +3,7 @@ import { TypeOrmConfigService } from './type-orm-config.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Form } from '../forms/entities/form.entity';
 import { Field } from '../forms/entities/field.entity';
+import { Answer } from '../forms/entities/answer.entity';
 
 describe('TypeOrmConfigService', () => {
   let service: TypeOrmConfigService;
@@ -46,8 +47,8 @@ describe('TypeOrmConfigService', () => {
       username: 'testuser',
       password: 'testpassword',
       database: 'testdb',
-      entities: [Form, Field],
       synchronize: true,
+      autoLoadEntities: true,
     });
   });
 });
