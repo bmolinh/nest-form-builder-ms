@@ -5,6 +5,7 @@ import { Form } from './entities/form.entity';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Answer } from './entities/answer.entity';
 import { SubmitAnswerDto } from './dto/submit-form.dto';
+import { Submission } from './entities/submission.entity';
 
 describe('FormsService', () => {
   let service: FormsService;
@@ -29,6 +30,10 @@ describe('FormsService', () => {
         },
         {
           provide: getRepositoryToken(Answer),
+          useValue: mockRepository,
+        },
+        {
+          provide: getRepositoryToken(Submission),
           useValue: mockRepository,
         },
       ],
@@ -74,8 +79,10 @@ describe('FormsService', () => {
       fields: [...fields],
     };
 
+    const submission = { form };
+
     const answersDto: SubmitAnswerDto[] = [{ fieldId: 1, value: 'Answer 1' }];
-    const answers = [{ field: fields[0], value: 'Answer 1' }];
+    const answers = [{ field: fields[0], value: 'Answer 1', submission }];
 
     repository.findOne.mockResolvedValue(form);
     repository.save.mockResolvedValue(answers);
@@ -136,7 +143,12 @@ describe('FormsService', () => {
 
     expect(await service.findAll()).toEqual(forms);
     expect(repository.find).toHaveBeenCalledWith({
-      relations: ['fields', 'fields.answers'],
+      relations: [
+        'fields',
+        'submissions',
+        'submissions.answers',
+        'submissions.answers.field',
+      ],
     });
   });
 
