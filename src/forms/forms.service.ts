@@ -11,6 +11,7 @@ import { Form } from './entities/form.entity';
 import { Field } from './entities/field.entity';
 import { Answer } from './entities/answer.entity';
 import { SubmitAnswerDto } from './dto/submit-form.dto';
+import { Submission } from './entities/submission.entity';
 
 @Injectable()
 export class FormsService {
@@ -19,6 +20,8 @@ export class FormsService {
     private readonly formsRepository: Repository<Form>,
     @InjectRepository(Answer)
     private readonly answersRepository: Repository<Answer>,
+    @InjectRepository(Submission)
+    private readonly submissionsRepository: Repository<Submission>,
   ) {}
 
   create(createFormDto: CreateFormDto): Promise<Form> {
@@ -30,6 +33,9 @@ export class FormsService {
     const form = await this.findOne(id);
 
     if (!form) throw new NotFoundException(`Form with ID ${id} not found`);
+
+    const submission = new Submission();
+    submission.form = form;
 
     const answers: Answer[] = [];
     const answerFieldIds = new Set(answersDto.map((answer) => answer.fieldId));
@@ -49,10 +55,12 @@ export class FormsService {
         const answer = new Answer();
         answer.field = field;
         answer.value = answerDto.value;
+        answer.submission = submission;
         answers.push(answer);
       }
     }
 
+    await this.submissionsRepository.save(submission);
     await this.answersRepository.save(answers);
 
     return form;
@@ -60,7 +68,12 @@ export class FormsService {
 
   findAll(): Promise<Form[]> {
     return this.formsRepository.find({
-      relations: ['fields', 'fields.answers'],
+      relations: [
+        'fields',
+        'submissions',
+        'submissions.answers',
+        'submissions.answers.field',
+      ],
     });
   }
 

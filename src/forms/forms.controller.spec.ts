@@ -6,6 +6,7 @@ import { Form } from './entities/form.entity';
 import { CreateFormDto } from './dto/create-form.dto';
 import { UpdateFormDto } from './dto/update-form.dto';
 import { Answer } from './entities/answer.entity';
+import { Submission } from './entities/submission.entity';
 
 describe('FormsController', () => {
   let controller: FormsController;
@@ -33,6 +34,10 @@ describe('FormsController', () => {
           provide: getRepositoryToken(Answer),
           useValue: mockRepository,
         },
+        {
+          provide: getRepositoryToken(Submission),
+          useValue: mockRepository,
+        },
       ],
     }).compile();
 
@@ -56,6 +61,7 @@ describe('FormsController', () => {
       name: 'Test Form',
       description: 'Test Description',
       fields: [],
+      submissions: [],
     };
 
     jest.spyOn(service, 'create').mockResolvedValue(form);
@@ -70,6 +76,7 @@ describe('FormsController', () => {
       name: 'Test Form',
       description: 'Test Description',
       fields: [],
+      submissions: [],
     };
     const formDto = { answers: [{ fieldId: 1, value: 'Answer 1' }] };
 
@@ -81,7 +88,13 @@ describe('FormsController', () => {
 
   it('should find all forms', async () => {
     const forms: Form[] = [
-      { id: 1, name: 'Test Form', description: 'Test Description', fields: [] },
+      {
+        id: 1,
+        name: 'Test Form',
+        description: 'Test Description',
+        fields: [],
+        submissions: [],
+      },
     ];
     jest.spyOn(service, 'findAll').mockResolvedValue(forms);
 
@@ -95,6 +108,7 @@ describe('FormsController', () => {
       name: 'Test Form',
       description: 'Test Description',
       fields: [],
+      submissions: [],
     };
 
     jest.spyOn(service, 'findOne').mockResolvedValue(form);
@@ -115,6 +129,7 @@ describe('FormsController', () => {
       name: 'Updated Form',
       description: 'Updated Description',
       fields: [],
+      submissions: [],
     };
 
     jest.spyOn(service, 'update').mockResolvedValue(form);
